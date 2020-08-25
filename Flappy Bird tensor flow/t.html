@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mazeMake</title>
+</head>
+<body>
+<canvas id="canvas" width="1004" height="1004"></canvas>
+</body>
+<script>
+    function maze(w, h){
+        for(let i = 0; i < 2 * h + 1; i++){
+            map[i] = new Array(w * 2 + 1);
+            map[i].fill(false);
+        }
+        /*function pick(){
+            Q.values()
+        }*/
+        function encode(i, j){
+            return i * (2 * w + 1) + j;
+        }
+
+        function decode(n){
+            return [parseInt(n / (2 * w + 1)), n % (2 * w + 1)];
+        }
+
+        function find(i, j){
+            let temp = [0, 1, 2, 3];
+            for(let i = 4, temp2, temp3; i > 0; i--){
+                temp2 = parseInt(Math.random() * i);
+                temp3 = temp[i - 1];
+                temp[i - 1] = temp[temp2];
+                temp[temp2] = temp3;
+            }
+            function howU(){
+                if(i !== 1){
+                    if(map[i - 2][j] === true){
+                        map[i - 1][j] = true;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            function howR(){
+                if(j !== 2 * w - 1){
+                    if(map[i][j + 2] === true){
+                        map[i][j + 1] = true;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            function howL(){
+                if(j !== 1){
+                    if(map[i][j - 2] === true){
+                        map[i][j - 1] = true;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            function howD(){
+                if(i !== 2 * h - 1){
+                    if(map[i + 2][j] === true){
+                        map[i + 1][j] = true;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            for(let i = 0; i < 4; i++){
+                switch (temp.pop()) {
+                    case 0: if(howU()) return true;break;
+                    case 1: if(howR()) return true;break;
+                    case 2: if(howL()) return true;break;
+                    case 3: if(howD()) return true;break;
+                }
+            }
+            return false;
+        }
+
+        function around(i, j){
+            if(i !== 2 * h - 1){
+                if(map[i + 2][j] === false){
+                    Q.add(encode(i + 2, j));
+                }
+            }
+            if(i !== 1){
+                if(map[i - 2][j] === false){
+                    Q.add(encode(i - 2, j));
+                }
+            }
+            if(j !== 2 * w - 1){
+                if(map[i][j + 2] === false){
+                    Q.add(encode(i, j + 2));
+                }
+            }
+            if(j !== 1){
+                if(map[i][j - 2] === false){
+                    Q.add(encode(i, j - 2));
+                }
+            }
+        }
+        let picked = [parseInt(Math.random() * h) * 2 + 1, parseInt(Math.random() * w) * 2 + 1];
+        console.log(picked);
+        map[picked[0]][picked[1]] = true;
+        around(picked[0], picked[1]);
+        while(Q.size){
+            let val = [...Q][parseInt(Math.random() * Q.size)];
+            console.log(val);
+            picked = decode(val);
+            console.log(picked);
+            Q.delete(val);
+            map[picked[0]][picked[1]] = true;
+            around(picked[0], picked[1]);
+            if(!find(picked[0], picked[1])){
+                alert("좆됨");
+                return false;
+            }
+        }
+    }
+    function draw(w){
+        function drawLR(i, j){
+            ctx.save();
+            ctx.beginPath();
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "black";
+            let x = parseInt(j / 2),
+                y = parseInt(i / 2);
+            if(!map[i][j]){
+                ctx.moveTo(x * w + 2, y * w + 2);
+                ctx.lineTo((x + 1) * w + 2, y * w + 2);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        function drawUD(i, j){
+            ctx.save();
+            ctx.beginPath();
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "black";
+            let x = parseInt(j / 2),
+                y = parseInt(i / 2);
+            if(!map[i][j]){
+                ctx.moveTo(x * w + 2, y * w + 2);
+                ctx.lineTo(x * w + 2, (y + 1) * w + 2);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+        let leni = map.length,
+            lenj = map[0].length;
+        for(let i = 0; i < leni; i += 2){
+            for(let j = 1; j < lenj; j += 2){
+                drawLR(i, j);
+            }
+        }
+        for(let i = 1; i < leni; i += 2){
+            for(let j = 0; j < lenj; j += 2){
+                drawUD(i, j);
+            }
+        }
+    }
+    const Q = new Set(),
+        map = [],
+        ctx = document.getElementById("canvas").getContext("2d");
+    maze(50, 50);
+    draw(20);
+</script>
+</html>
